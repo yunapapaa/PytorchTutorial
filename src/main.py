@@ -7,59 +7,93 @@ import sys
 import torch
 import torch.nn as nn
 
-
 from dataloader import get_dataloader
-from train import train_model, accuracy
-from utils.common import setup_device, fixed_r_seed, get_time
+from train_val import train, val, test
+from model.my_cnn import MyCNN
 from model.cifar_resnet import ResNetBasicBlock
-from model.my
-
+from utils.common import setup_device, fixed_r_seed, get_time, show_img
+from utils.plot import plot_loss
 
 
 def main():
     print('start main')
 
-    SEED=1
-    N_CLASS=10
-    N_EPOCH = 10
+    seed=1
+    n_epoch = 100
+    lr = 0.1
     dataset_path = '/homes/ypark/code/working_dataset/cifar10'
+    save_dir = '/homes/ypark/code/torch_tuto/fig'
     
+    # gpu使える場合はcudaを登録
     device = setup_device()
-    fixed_r_seed(SEED)
+    fixed_r_seed(seed)
 
-    # ImageNetのvalidationデータ19クラス．各クラス50枚．224にリサイズ．
-    val_dataloader = get_dataloader(dataset_path=dataset_path, img_size=224, batch_size=128)
+    # データセットの読み込み
+    train_loader, val_loader, test_loader = get_dataloader(dataset_path=dataset_path, img_size=32, batch_size=128)
+    # データ拡張の適用結果を確認
+    show_img(save_path=os.path.join(save_dir, 'ex_img.png'), dataloader=train_loader)
     
-    # ImageNetで学習済みモデル
-    model = ResNetBasicBlock(weights = "ViT_B_16_Weights.IMAGENET1K_V1")
-    model.heads[0] = nn.Linear(model.heads[0].in_features, N_CLASS)
+    # モデルの定義
+    # model = MyCNN(n_class=10)
+    model = ResNetBasicBlock(depth=20, n_class=10)
     model.to(device)
 
+    # 最適化アルゴリズムの定義
+    optimizer = torch.optim.SGD(params=model.parameters(), lr=lr, weight_decay=1e-5, momentum=0.9)
+
+    # 学習率のスケジューラーを設定 (Cosineで 1/100 まで減衰)
+    # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+    #         optimizer,
+    #         T_max=n_epoch,
+    #         eta_min=lr*0.01,
+    # )
+
+    # 損失関数の定義
     criterion = loss = nn.CrossEntropyLoss(reduction='mean')
 
-    # 分類層だけチューニングする場合
-    # train_model(device, N_EPOCH, criterion, model, val_dataloader)
+    start = time.time()
+    all_training_result = []
+    for epoch in range(1, n_epoch + 1):
+        interval = time.time() - start
+        interval = get_time(interval)
+        print(f"Lr: {optimizer.param_groups[0]['lr']} , Time: {interval['time']}")
     
-    # モデルに入力
-    model.eval()
-    test_acc, test_loss, n_test = 0, 0, 0
-    with torch.no_grad():
-        for i, sample_batched in enumerate(val_dataloader):
-            data, target = sample_batched["image"].to(device), sample_batched["label"].to(device)
-            output = model(data)
-            loss = criterion(output, target)
-            test_acc += accuracy(output, target)
-            test_loss += loss.item() * target.size(0)
-            n_test += target.size(0)
+        train_loss, train_acc = train(model, device, train_loader, optimizer, criterion)
+        val_loss, val_acc = val(model, device, val_loader, criterion)
+
+        all_training_result.append([train_loss, train_acc, val_loss, val_acc])
+       
+        print(
+            f"Epoch: [{epoch}/{n_epoch}] \t"
+            + f"Train Loss: {train_loss:.6f} \t"
+            + f"Train Acc: {train_acc*100:.2f}% \t"
+            + f"Val Loss: {val_loss:.6f} \t"
+            + f"Val Acc: {val_acc*100:.2f}% \t"
+        )
+        sys.stdout.flush()
+
+        # 学習率の更新
+        # scheduler.step()
     
-    test_loss = test_loss / n_test
-    test_acc = float(test_acc) / n_test
+    all_training_result = pd.DataFrame(
+        np.array(all_training_result),
+        columns=["train_loss", "train_acc", "val_loss", "val_acc"],
+    )
+    interval = time.time() - start
+    interval = get_time (interval)
 
-    print(f'Test Loss : {test_loss:.6f}  Test Accuracy : {test_acc * 100:.2f}%')
+    test_loss, test_acc = test(model, device, test_loader, criterion)
+    print(
+        f"Time: {interval['time']}  Test loss: {test_loss:.6f}  Test Acc: {test_acc*100:.2f}")
+
+    all_training_result.loc["test_acc"] = test_acc
+    all_training_result.loc["test_loss"] = test_loss
+    # all_training_result.to_csv(save_file_path, index=False)
+
+    plot_loss(os.path.join(save_dir, "graph.png"), all_training_result)
+
 
     
-
-
 if __name__ == "__main__":
     main()
 

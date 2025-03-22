@@ -38,6 +38,7 @@ def show_img(save_path, dataloader):
         labels = batched["label"]
         break
 
+    # 0-1の正規化を解除
     images = (images - images.min()) / (images.max() - images.min())
     
     fig, axes = plt.subplots(3, 4, figsize=(12, 9))
