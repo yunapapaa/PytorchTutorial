@@ -11,7 +11,8 @@ import torch.nn as nn
 from dataloader import get_dataloader
 from train import train_model, accuracy
 from utils.common import setup_device, fixed_r_seed, get_time
-from model.vision_transformer import vit_b_16
+from model.cifar_resnet import ResNetBasicBlock
+from model.my
 
 
 
@@ -19,9 +20,9 @@ def main():
     print('start main')
 
     SEED=1
-    N_CLASS=19
+    N_CLASS=10
     N_EPOCH = 10
-    dataset_path = '/homes/ypark/code/dataset/ImageNetSub'
+    dataset_path = '/homes/ypark/code/working_dataset/cifar10'
     
     device = setup_device()
     fixed_r_seed(SEED)
@@ -30,7 +31,7 @@ def main():
     val_dataloader = get_dataloader(dataset_path=dataset_path, img_size=224, batch_size=128)
     
     # ImageNetで学習済みモデル
-    model = vit_b_16(weights = "ViT_B_16_Weights.IMAGENET1K_V1")
+    model = ResNetBasicBlock(weights = "ViT_B_16_Weights.IMAGENET1K_V1")
     model.heads[0] = nn.Linear(model.heads[0].in_features, N_CLASS)
     model.to(device)
 
