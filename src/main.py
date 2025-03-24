@@ -11,12 +11,14 @@ from dataloader import get_dataloader
 from train_val import train, val, test
 from model.my_cnn import MyCNN
 from model.cifar_resnet import ResNetBasicBlock
+from model.vision_transformer import vit_b_16
 from utils.common import setup_device, fixed_r_seed, get_time, show_img
 from utils.plot import plot_loss
 
+print('giselle')
+
 
 def main():
-    print('start main')
 
     seed=1
     n_epoch = 100
@@ -33,15 +35,20 @@ def main():
     # データ拡張の適用結果を確認
     show_img(save_path=os.path.join(save_dir, 'ex_img.png'), dataloader=train_loader)
     
-    # モデルの定義
+    ## モデル
+    # 3層のCNN, ResNet (画像サイズが小さいCIFAR用, depth=20, 56)
     # model = MyCNN(n_class=10)
     model = ResNetBasicBlock(depth=20, n_class=10)
     model.to(device)
 
+    # モデル構造を出力して確認する場合
+    # with open(os.path.join(save_dir, 'structure_resnet20.txt'), 'w') as f:
+    #     print(model, file=f)
+
     # 最適化アルゴリズムの定義
     optimizer = torch.optim.SGD(params=model.parameters(), lr=lr, weight_decay=1e-5, momentum=0.9)
 
-    # 学習率のスケジューラーを設定 (Cosineで 1/100 まで減衰)
+    # 学習率のスケジューラーを設定 (Cosineで init lr * 1/100 まで減衰)
     # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
     #         optimizer,
     #         T_max=n_epoch,
@@ -49,7 +56,7 @@ def main():
     # )
 
     # 損失関数の定義
-    criterion = loss = nn.CrossEntropyLoss(reduction='mean')
+    criterion = nn.CrossEntropyLoss(reduction='mean', label_smoothing=0.0)
 
     start = time.time()
     all_training_result = []
@@ -58,9 +65,13 @@ def main():
         interval = get_time(interval)
         print(f"Lr: {optimizer.param_groups[0]['lr']} , Time: {interval['time']}")
     
+        # train
         train_loss, train_acc = train(model, device, train_loader, optimizer, criterion)
+
+        # validation
         val_loss, val_acc = val(model, device, val_loader, criterion)
 
+        # 学習進捗を記録
         all_training_result.append([train_loss, train_acc, val_loss, val_acc])
        
         print(
@@ -75,6 +86,7 @@ def main():
         # 学習率の更新
         # scheduler.step()
     
+
     all_training_result = pd.DataFrame(
         np.array(all_training_result),
         columns=["train_loss", "train_acc", "val_loss", "val_acc"],
@@ -82,6 +94,7 @@ def main():
     interval = time.time() - start
     interval = get_time (interval)
 
+    # テスト
     test_loss, test_acc = test(model, device, test_loader, criterion)
     print(
         f"Time: {interval['time']}  Test loss: {test_loss:.6f}  Test Acc: {test_acc*100:.2f}")
@@ -90,6 +103,7 @@ def main():
     all_training_result.loc["test_loss"] = test_loss
     # all_training_result.to_csv(save_file_path, index=False)
 
+    # 学習曲線をplotして確認
     plot_loss(os.path.join(save_dir, "graph.png"), all_training_result)
 
 

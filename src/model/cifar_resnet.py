@@ -20,7 +20,11 @@ class BasicBlock(nn.Module):
         residual = x
         out = self.convs(x)
         if self.downsample is not None:
+            # convによって特徴マップの数，大きさが変化した分を残差も修正
+            # [bs, ch, h, w]  -> [bs, 2 * ch , h / 2,  w / 2])
             residual = self.downsample(x)
+
+        # スキップ接続
         out += residual
         out = self.relu(out)
         return out
@@ -49,11 +53,12 @@ class Bottleneck(nn.Module):
         out = self.convs(x)
         if self.downsample is not None:
             residual = self.downsample(x)
+        # スキップ接続
         out += residual
         out = self.relu(out)
         return out
     
-
+# 20, 
 class ResNetBasicBlock(nn.Module):
     def __init__(self, depth=20, n_class=10):
         super().__init__()
@@ -67,7 +72,9 @@ class ResNetBasicBlock(nn.Module):
         self.bn1 = nn.BatchNorm2d(16)
         self.relu = nn.ReLU(inplace=True)
 
+        # layer1はstride=1(特徴マップのサイズに変化なし)，ch数も16 -> 16
         self.layer1 = self._make_layer(16, n_blocks)
+        # stride=2なので特徴マップは半分のサイズへ
         self.layer2 = self._make_layer(32, n_blocks, stride=2)
         self.layer3 = self._make_layer(64, n_blocks, stride=2)
 
@@ -76,6 +83,7 @@ class ResNetBasicBlock(nn.Module):
 
     def _make_layer(self, planes, n_blocks, stride=1):
         downsample = None
+        # スキップ接続用の1x1畳みこみ
         if stride != 1 or self.inplanes != planes * BasicBlock.expansion:
             downsample = nn.Sequential(
                 nn.Conv2d(self.inplanes, planes * BasicBlock.expansion, kernel_size=1, stride=stride, bias=False),
@@ -83,27 +91,41 @@ class ResNetBasicBlock(nn.Module):
             )
 
         layers = []
+        # ブロック内での最初のlayerのstrideは可変
         layers.append(BasicBlock(self.inplanes, planes, stride, downsample))
         self.inplanes = planes * BasicBlock.expansion
+        # 以降のlayerはstride=1
         for _ in range(0, n_blocks - 1):
             layers.append(BasicBlock(self.inplanes, planes))
 
         return nn.Sequential(*layers)
 
     def forward(self, x):
+        # 入力：[128, 3, 32, 32]
+
+        # conv1 : [128, 3, 32, 32] -> [128, 16, 32, 32]
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)
 
+        # layer1 : [128, 16, 32, 32] -> [128, 16, 32, 32]
         x = self.layer1(x)
+
+        # layer2 : [128, 16, 32, 32] -> [128, 32, 16, 16]
         x = self.layer2(x)
+
+        # layer3 : [128, 32, 16, 16] -> [128, 64, 8, 8]
         x = self.layer3(x)
 
+        # gap : [128, 64, 8, 8] -> [128, 64, 1, 1]
         x = self.avgpool(x)
+
         x = x.view(x.size(0), -1)
         x = self.fc(x)
+        
         return x
     
+# 56
 class ResNetBottleneck(nn.Module):
     def __init__(self, depth, n_class=10):
         super().__init__()

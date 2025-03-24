@@ -1,0 +1,28 @@
+Environment : Cotton (stove, CUDA Version: 12.2)
+
+
+1.  Create new environment in anaconda.
+
+conda create -n 'torch_tuto'
+
+
+2. Install required packeges.
+
+conda install pytorch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 pytorch-cuda=12.1 -c pytorch -c nvidia
+
+conda install conda-forge::matplotlib
+
+conda install pandas
+
+
+** Note **
+After install, check GPU is available with pytorch.
+
+When you excute, src/main.py, 
+Output will be, 
+┃(torch_tuto) ypark@stove5:~/code/torch_tuto$ python /homes/ypark/code/torch_tuto/src/main.py
+giselle
+CUDA is available: True
+
+If Cuda is available: True, the installation was successful!
+
