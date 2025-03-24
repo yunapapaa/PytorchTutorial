@@ -5,7 +5,33 @@
 requiment.txtに従って，anaconda環境に必要なパッケージをinstall
 
 ## 実行
-src/main.pyの冒頭にあるdataset_pathとsave_dirにpathを指定して`python src/main.py`で実行
+src/main.pyの冒頭にあるdataset_pathとsave_dirにpathを指定して`python src/main.py`で実行.
+`dataset_path = '/path_to_dataset/cifar10'`
+
+```
+cifar10/
+└── train/
+    ├── 0/
+      ├── aeroplane_s_000004.png
+      ├── aeroplane_s_000021.png
+      └── ...
+
+    ├── 1/
+    ├── 2/
+    └── ...
+
+└── val/
+    ├── 0/   
+    ├── 1/
+    └── ...
+
+└── test/
+    ├── 0/   
+    ├── 1/
+    └── ...
+```
+
+
 save_dirは学習結果などの出力グラフを保存するdir
 mian.pyを実行すると，
 - ex_img.png (どんな画像を学習させたかの例)
