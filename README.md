@@ -1,49 +1,53 @@
-# Pytorch tutorial with CIFAR-10
+# Pytorch tutorial with CIFAR-10, CIFAR-100
 このコードの軽い説明．(引用はChat GPT)
 
 ## 準備
-requiment.txtに従って，anaconda環境に必要なパッケージをinstall
+- ライブラリ
+  
+  requiment.mdを参照して，anaconda環境に必要なパッケージをinstall
+
+- データセット
+  
+  `src/create_dataset.py`の冒頭部分で，DATASETにデータセット名を指定．(CIFAR-10なら，'cifar10', CIFAR-100なら，'cifar100')
+  `DATASET_PATH`にデータセットを保存するディレクトリのパスを指定．
+
+  `python src/create_daset.py` で実行．
+  
+  以下のようなディレクトリの構造のデータセットが作成される．
+    
+    ```
+    cifar10/
+    └── train/
+        ├── 0/
+          ├── aeroplane_s_000004.png
+          ├── aeroplane_s_000021.png
+          └── ...
+    
+        ├── 1/
+        ├── 2/
+        └── ...
+    
+    └── val/
+        ├── 0/   
+        ├── 1/
+        └── ...
+    
+    └── test/
+        ├── 0/   
+        ├── 1/
+        └── ...
+    ```
+
+    デフォルトの状態では，学習データを，Train data : Validation data = 40000 : 10000 に分割するが，`create_CIFAR10_dataset(DATASET_PATH, r_seed=1, val_size=10000)`でValidation dataの数を指定できる．
+
 
 ## 実行
-src/main.pyの冒頭にあるdataset_pathとsave_dirにpathを指定して，
+src/main.pyの冒頭で，dataset_path, save_dirのパスを指定．
 
-`python src/main.py`
+dataset_pathは，`dataset_path = '/path_to_dataset/cifar10'`のようにデータセットのディレクトリのパスを指定．
+save_dirは，学習結果などの出力グラフを保存するためのディレクトリのパスを指定．
 
-で実行.
-
-- dataset_path
-
-`dataset_path = '/path_to_dataset/cifar10'`
-
-のように指定．以下のようなディレクトリの構造を期待している．
-
-```
-cifar10/
-└── train/
-    ├── 0/
-      ├── aeroplane_s_000004.png
-      ├── aeroplane_s_000021.png
-      └── ...
-
-    ├── 1/
-    ├── 2/
-    └── ...
-
-└── val/
-    ├── 0/   
-    ├── 1/
-    └── ...
-
-└── test/
-    ├── 0/   
-    ├── 1/
-    └── ...
-```
-
-
-- save_dir
-
-学習結果などの出力グラフを保存するディレクトリのパスを指定．
+`python src/main.py` で実行.
 
 mian.pyを実行すると，
 - ex_img.png (どんな画像を学習させたかの例)
@@ -54,22 +58,22 @@ mian.pyを実行すると，
 ## モデル
 - My CNN
   
-畳み込み層1, 畳み込み層2, FCからなる，3層の簡単な畳み込みニューラルネットワークモデル
+  畳み込み層1, 畳み込み層2, FCからなる，3層の簡単な畳み込みニューラルネットワークモデル
 
 - ResNet
   
-有名なCNNモデル
-> ResNetは、各層の出力を次の層に直接伝える「残差接続」により、非常に深いネットワークでもスムーズに学習できる点がすごいです。
+  有名なCNNモデル
+  > ResNetは、各層の出力を次の層に直接伝える「残差接続」により、非常に深いネットワークでもスムーズに学習できる点がすごいです。
+  
+  実装しているResNetは，CIFAR-10のような小さい画像 (解像度：32x32)に対応したResNetなので，通常のResNetとは少し違う．
 
-実装しているResNetは，CIFAR-10のような小さい画像 (解像度：32x32)に対応したResNetなので，通常のResNetとは少し違う．
+  `model = ResNetBasicBlock(depth=20, n_class=10)`で定義するときに，depth = 20, 56のように設定すると，ResNet20, ResNet56が使える．
 
-`model = ResNetBasicBlock(depth=20, n_class=10)`で定義するときに，depth = 20, 56のように設定すると，ResNet20, ResNet56が使える．
-
-まず，model/my_cnn.pyを見て，CNNってPytorchでこんなふうに定義するんだというのを確認できたら，ResNet20を使ってみるのがおすすめ．
+  まず，model/my_cnn.pyを見て，CNNってPytorchでこんなふうに定義するんだというのを確認できたら，ResNet20を使ってみるのがおすすめ．
 
 ## ハイパーパラメータ
 
-main.pyの冒頭にモデルの挙動に変化が見られやすいようなハイパラの設定を明示的に書いてあるため，これらを変更して，モデルの学習の様子やテスト時の識別精度を比較すると良い．
+main.pyの冒頭にモデルの挙動に変化が見られやすいようなハイパラの設定を明示的に書いてある．これらを変更して，モデルの学習の様子やテスト時の識別精度を比較すると良い．
 
 ```
 n_epoch = 200
@@ -79,15 +83,17 @@ label_smooth = 0.0
 lr_scheduling = False
 ```
 
-## 過学習
-もし，なんのはtripletはなパラ設定から変えたら良いかわからない場合には，どのようなハイパラ設定によって，どのように過学習を抑制し，モデルの識別精度が向上するのか確認すると良い．
+## Overfitting(過学習)
+ハイパラ設定を変更する際には，過学習を抑制することで，モデルの識別精度が向上する様子を確認できると勉強になる．
 
-過学習を防ぐための工夫をせず(上のハイパラ設定のまま + データ拡張なし)で学習すると，以下のような過学習が観察できる．
-<img width="541" alt="image" src="https://github.com/user-attachments/assets/4210a624-072f-47cf-b160-8d5868ed87a5" />
+過学習を防ぐための工夫をせず(上のハイパラ設定のまま + データ拡張なし)で学習すると，以下のような過学習が観察できる．(MyCNN, CIFAR-100)
+![w_overfit](https://github.com/user-attachments/assets/0ecc47a0-5fc2-4c2b-a519-391f943cce1f)
 
-Trainデータに対するLossは下がっているにも関わらず，Validationデータに対するLossが増加している．
 
-このような過学習の問題に対しては，以下の設定を変えてみると効果的である．
+30エポックあたりでValidation Acuracyは最大となり，Trainデータに対するLossが下がっているにも関わらず，Validationデータに対するLossが増加している．
+
+
+このような過学習の問題に対しては，以下の設定を変えて，学習の工夫を行ってみると効果的である．
 
 - weight decay 
   これは，モデルのパラメータの値が大きくなりすぎないように制約をかけるもの
@@ -111,5 +117,13 @@ Trainデータに対するLossは下がっているにも関わらず，Validati
   また，手法を変えるだけでなく，各手法のハイパラを変えてデータ拡張の強度を変えてみてもおもしろい．
 
   どんなデータ拡張が適用されたかは，指定したsave_dirに出力されるex_img.pngをみると確認できる．
+
+
+
+(参考) Weight Decay, Label Smooting, データ拡張を加えて学習させると以下のようになる．(MyCNN, CIFAR-100)
+
+  ![wo_overfit](https://github.com/user-attachments/assets/0d985c44-21f9-43b0-99d1-fcda0aa0bbc8)
+
+
 
 
