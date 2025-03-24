@@ -11,7 +11,6 @@ from dataloader import get_dataloader
 from train_val import train, val, test
 from model.my_cnn import MyCNN
 from model.cifar_resnet import ResNetBasicBlock
-from model.vision_transformer import vit_b_16
 from utils.common import setup_device, fixed_r_seed, get_time, show_img
 from utils.plot import plot_loss
 
@@ -21,8 +20,11 @@ print('giselle')
 def main():
 
     seed=1
-    n_epoch = 100
+    n_epoch = 200
     lr = 0.1
+    weight_decay = 0.0
+    label_smooth = 0.0
+    lr_scheduling = False
     dataset_path = '/homes/ypark/code/working_dataset/cifar10'
     save_dir = '/homes/ypark/code/torch_tuto/fig'
     
@@ -36,9 +38,8 @@ def main():
     show_img(save_path=os.path.join(save_dir, 'ex_img.png'), dataloader=train_loader)
     
     ## モデル
-    # 3層のCNN, ResNet (画像サイズが小さいCIFAR用, depth=20, 56)
-    # model = MyCNN(n_class=10)
-    model = ResNetBasicBlock(depth=20, n_class=10)
+    model = MyCNN(n_class=10)
+    # model = ResNetBasicBlock(depth=20, n_class=10)
     model.to(device)
 
     # モデル構造を出力して確認する場合
@@ -46,17 +47,18 @@ def main():
     #     print(model, file=f)
 
     # 最適化アルゴリズムの定義
-    optimizer = torch.optim.SGD(params=model.parameters(), lr=lr, weight_decay=1e-5, momentum=0.9)
+    optimizer = torch.optim.SGD(params=model.parameters(), lr=lr, weight_decay=weight_decay, momentum=0.9)
 
     # 学習率のスケジューラーを設定 (Cosineで init lr * 1/100 まで減衰)
-    # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
-    #         optimizer,
-    #         T_max=n_epoch,
-    #         eta_min=lr*0.01,
-    # )
+    if lr_scheduling:
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+                optimizer,
+                T_max=n_epoch,
+                eta_min=lr*0.01,
+        )
 
     # 損失関数の定義
-    criterion = nn.CrossEntropyLoss(reduction='mean', label_smoothing=0.0)
+    criterion = nn.CrossEntropyLoss(reduction='mean', label_smoothing=label_smooth)
 
     start = time.time()
     all_training_result = []
@@ -84,7 +86,8 @@ def main():
         sys.stdout.flush()
 
         # 学習率の更新
-        # scheduler.step()
+        if lr_scheduling:
+            scheduler.step()
     
 
     all_training_result = pd.DataFrame(

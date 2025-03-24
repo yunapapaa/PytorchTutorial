@@ -41,7 +41,8 @@ class DatasetLoader(Dataset):
 def get_dataloader(dataset_path, img_size=32, batch_size=128):
 
     ## データ拡張の設定 (自由に変更)
-    augmentation_list = ['rcrop', 'hflip', 'ra', 'cutout']
+    # augmentation_list = ['rcrop', 'hflip', 'ra', 'cutout']
+    augmentation_list = []
     print(f'Apply augmentation ... {augmentation_list}')
 
     additional_transform_list = []

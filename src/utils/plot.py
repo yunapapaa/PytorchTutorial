@@ -48,7 +48,7 @@ def plot_loss(save_path, data):
     ax[1].set_title(f'Accuracy (Best Val : {max_acc}%)', fontsize=30)
     ax[1].set_xlabel('Epochs', fontsize=25)
     ax[1].set_ylabel('Accuracy', fontsize=25)
-    ax[1].xaxis.set_major_locator(ticker.MultipleLocator(5))
+    # ax[1].xaxis.set_major_locator(ticker.MultipleLocator(5))
     ax[1].yaxis.set_major_locator(ticker.MultipleLocator(5))
     ax[1].set_ylim(50, 100)
     ax[1].legend(bbox_to_anchor=(1, 0), loc="lower right", borderaxespad=0.2, fontsize=20, ncol=1)
