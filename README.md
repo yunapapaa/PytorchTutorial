@@ -127,11 +127,11 @@ lr_scheduling = False
 
 (参考) 
 
-1e-5のWeight Decay, 0.1のLabel Smooting, ['rcrop', 'hflip', 'cutout']のデータ拡張を加えて学習させると以下のようになる．(MyCNN, CIFAR-10)
+- 1e-5のWeight Decay, 0.1のLabel Smooting, ['rcrop', 'hflip', 'cutout']のデータ拡張を加えて学習させた場合．(MyCNN, CIFAR-10)
 
   ![wo_overfit](https://github.com/user-attachments/assets/0d985c44-21f9-43b0-99d1-fcda0aa0bbc8)
 
-1e-5のWeight Decay, 0.1のLabel Smooting, ['rcrop', 'hflip', 'ra', 'cutout']のデータ拡張を加えて学習させると以下のようになる．(ResNet20, CIFAR-10)
+- 1e-5のWeight Decay, 0.1のLabel Smooting, ['rcrop', 'hflip', 'ra', 'cutout']のデータ拡張を加えて学習させた場合．(ResNet20, CIFAR-10)
 
   ![resnet20](https://github.com/user-attachments/assets/0a9ff7a8-1147-4d2d-b835-e54529b62987)
 
