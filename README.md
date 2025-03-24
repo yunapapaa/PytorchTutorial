@@ -5,8 +5,17 @@
 requiment.txtに従って，anaconda環境に必要なパッケージをinstall
 
 ## 実行
-src/main.pyの冒頭にあるdataset_pathとsave_dirにpathを指定して`python src/main.py`で実行.
+src/main.pyの冒頭にあるdataset_pathとsave_dirにpathを指定して，
+
+`python src/main.py`
+
+で実行.
+
+- dataset_path
+
 `dataset_path = '/path_to_dataset/cifar10'`
+
+のように指定．以下のようなディレクトリの構造を期待している．
 
 ```
 cifar10/
@@ -32,12 +41,15 @@ cifar10/
 ```
 
 
-save_dirは学習結果などの出力グラフを保存するdir
+- save_dir
+
+学習結果などの出力グラフを保存するディレクトリのパスを指定．
+
 mian.pyを実行すると，
 - ex_img.png (どんな画像を学習させたかの例)
 - grapgh.png (学習曲線の様子)
   
-が出力される
+がsave_dirに出力される．
 
 ## モデル
 - My CNN
