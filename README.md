@@ -1,5 +1,6 @@
 # Pytorch tutorial with CIFAR-10, CIFAR-100
-このコードの軽い説明．(引用はChat GPT)
+このコードの軽い説明．(引用部分はChat GPT)
+
 
 ## 準備
 - ライブラリ
@@ -38,7 +39,7 @@
         └── ...
     ```
 
-    デフォルトの状態では，学習データを，Train data : Validation data = 40000 : 10000 に分割するが，`create_CIFAR10_dataset(DATASET_PATH, r_seed=1, val_size=10000)`でValidation dataの数を指定できる．
+    デフォルトの状態では，学習データを，Train data : Validation data = 40000 : 10000 に分割するが，193行目の`create_CIFAR10_dataset(DATASET_PATH, r_seed=1, val_size=10000)`でValidation dataの数を指定できる．
 
 
 ## 実行
@@ -50,8 +51,8 @@ save_dirは，学習結果などの出力グラフを保存するためのディ
 `python src/main.py` で実行.
 
 mian.pyを実行すると，
-- ex_img.png (どんな画像を学習させたかの例)
-- grapgh.png (学習曲線の様子)
+- ex_img.png : どんな画像を学習させたかの例
+- grapgh.png : 学習曲線の様子
   
 がsave_dirに出力される．
 
@@ -65,11 +66,12 @@ mian.pyを実行すると，
   有名なCNNモデル
   > ResNetは、各層の出力を次の層に直接伝える「残差接続」により、非常に深いネットワークでもスムーズに学習できる点がすごいです。
   
-  実装しているResNetは，CIFAR-10のような小さい画像 (解像度：32x32)に対応したResNetなので，通常のResNetとは少し違う．
+  実装しているResNetは，CIFAR-10のような小さい画像 (解像度：32x32)に対応したResNetなので，通常の解像度224x224に対応したResNetとは少し違う．
 
   `model = ResNetBasicBlock(depth=20, n_class=10)`で定義するときに，depth = 20, 56のように設定すると，ResNet20, ResNet56が使える．
 
   まず，model/my_cnn.pyを見て，CNNってPytorchでこんなふうに定義するんだというのを確認できたら，ResNet20を使ってみるのがおすすめ．
+
 
 ## ハイパーパラメータ
 
@@ -83,14 +85,16 @@ label_smooth = 0.0
 lr_scheduling = False
 ```
 
+
 ## Overfitting(過学習)
 ハイパラ設定を変更する際には，過学習を抑制することで，モデルの識別精度が向上する様子を確認できると勉強になる．
 
-過学習を防ぐための工夫をせず(上のハイパラ設定のまま + データ拡張なし)で学習すると，以下のような過学習が観察できる．(MyCNN, CIFAR-100)
+過学習を防ぐための工夫をせず(上のハイパラ設定のまま + データ拡張なし)で学習すると，以下のような過学習が観察できる．(MyCNN, CIFAR-10)
 ![w_overfit](https://github.com/user-attachments/assets/0ecc47a0-5fc2-4c2b-a519-391f943cce1f)
 
 
 30エポックあたりでValidation Acuracyは最大となり，Trainデータに対するLossが下がっているにも関わらず，Validationデータに対するLossが増加している．
+
 
 
 このような過学習の問題に対しては，以下の設定を変えて，学習の工夫を行ってみると効果的である．
@@ -120,9 +124,16 @@ lr_scheduling = False
 
 
 
-(参考) Weight Decay, Label Smooting, データ拡張を加えて学習させると以下のようになる．(MyCNN, CIFAR-100)
+(参考) 
+
+1e-5のWeight Decay, 0.1のLabel Smooting, ['rcrop', 'hflip', 'cutout']のデータ拡張を加えて学習させると以下のようになる．(MyCNN, CIFAR-10)
 
   ![wo_overfit](https://github.com/user-attachments/assets/0d985c44-21f9-43b0-99d1-fcda0aa0bbc8)
+
+1e-5のWeight Decay, 0.1のLabel Smooting, ['rcrop', 'hflip', 'ra', 'cutout']のデータ拡張を加えて学習させると以下のようになる．(ResNet20, CIFAR-10)
+
+  ![resnet20](https://github.com/user-attachments/assets/0a9ff7a8-1147-4d2d-b835-e54529b62987)
+
 
 
 
