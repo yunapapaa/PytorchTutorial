@@ -14,7 +14,7 @@
 
   `python src/create_daset.py` で実行．
   
-  以下のようなディレクトリの構造のデータセットが作成される．
+  指定した`DATASET_PATH`に，以下のようなディレクトリの構造のデータセットが作成される．
     
     ```
     cifar10/
@@ -39,14 +39,14 @@
         └── ...
     ```
 
-    デフォルトの状態では，学習データを，Train data : Validation data = 40000 : 10000 に分割するが，193行目の`create_CIFAR10_dataset(DATASET_PATH, r_seed=1, val_size=10000)`でValidation dataの数を指定できる．
+    (デフォルトの状態では，学習データを，Train data : Validation data = 40000 : 10000 に分割するが，193行目の`create_CIFAR10_dataset(DATASET_PATH, r_seed=1, val_size=10000)`でValidation dataの数を指定できる．)
 
 
 ## 実行
-src/main.pyの冒頭で，dataset_path, save_dirのパスを指定．
+src/main.pyの冒頭で，`dataset_path`, `save_dir`のパスを指定．
 
-dataset_pathは，`dataset_path = '/path_to_dataset/cifar10'`のようにデータセットのディレクトリのパスを指定．
-save_dirは，学習結果などの出力グラフを保存するためのディレクトリのパスを指定．
+`dataset_path`は，`dataset_path = '/path_to_dataset/cifar10'`のようにデータセットのディレクトリのパスを指定．
+`save_dir`は，学習結果などの出力グラフを保存するためのディレクトリのパスを指定．
 
 `python src/main.py` で実行.
 
@@ -54,7 +54,7 @@ mian.pyを実行すると，
 - ex_img.png : どんな画像を学習させたかの例
 - grapgh.png : 学習曲線の様子
   
-がsave_dirに出力される．
+が`save_dir`に出力される．
 
 ## モデル
 - My CNN
@@ -66,7 +66,7 @@ mian.pyを実行すると，
   有名なCNNモデル
   > ResNetは、各層の出力を次の層に直接伝える「残差接続」により、非常に深いネットワークでもスムーズに学習できる点がすごいです。
   
-  実装しているResNetは，CIFAR-10のような小さい画像 (解像度：32x32)に対応したResNetなので，通常の解像度224x224に対応したResNetとは少し違う．
+  実装しているResNetは，CIFAR-10のような小さい画像 (解像度：32x32)に対応したResNetなので，解像度224x224に対応した通常のResNetとは少し違う．
 
   `model = ResNetBasicBlock(depth=20, n_class=10)`で定義するときに，depth = 20, 56のように設定すると，ResNet20, ResNet56が使える．
 
