@@ -6,15 +6,15 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import matplotlib.font_manager as fm
 
-arial_path = '/homes/ypark/fonts/Arial.ttf'  # 自分のユーザーディレクトリのパスに合わせて修正
+# arial_path = '/homes/ypark/fonts/Arial.ttf'  # 自分のユーザーディレクトリのパスに合わせて修正
 
-# フォントを登録
-fm.fontManager.addfont(arial_path)
+# # フォントを登録
+# fm.fontManager.addfont(arial_path)
 
-# フォントファミリを Arial に設定
-plt.rcParams["font.family"] = "Arial"
-plt.rcParams["pdf.fonttype"] = 42  # PDF出力時に TrueType フォント（Type 42）を使用
-plt.rcParams["ps.fonttype"] = 42
+# # フォントファミリを Arial に設定
+# plt.rcParams["font.family"] = "Arial"
+# plt.rcParams["pdf.fonttype"] = 42  # PDF出力時に TrueType フォント（Type 42）を使用
+# plt.rcParams["ps.fonttype"] = 42
 
 
 # train, val, leave_oneのlossをplot
