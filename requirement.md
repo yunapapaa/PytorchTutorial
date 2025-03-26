@@ -22,9 +22,9 @@ PyTorchのversionはCUDAのVersionに応じて適宜変更する必要がある�
 
 ** Note **
 
-After install, check GPU is available with pytorch.
+After installing, check whther GPU is available with pytorch.
 
 When you run `src/main.py`, 
 `CUDA is available: True` will be outputted.
 
-If True, you use GPU without any problem and the installation was successful !
+If True, you can use GPU without any problem and the installation was successful !
