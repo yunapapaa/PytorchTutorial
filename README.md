@@ -9,7 +9,7 @@
 
 - データセット
   
-  `src/create_dataset.py`の冒頭部分で，DATASETにデータセット名を指定．(CIFAR-10なら，'cifar10', CIFAR-100なら，'cifar100')
+  `src/create_dataset.py`の冒頭部分で，`DATASET`にデータセット名を指定．(CIFAR-10なら，'cifar10', CIFAR-100なら，'cifar100')
   `DATASET_PATH`にデータセットを保存するディレクトリのパスを指定．
 
   `python src/create_daset.py` で実行．
