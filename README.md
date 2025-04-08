@@ -138,6 +138,12 @@ lr_scheduling = False
   ![resnet20](https://github.com/user-attachments/assets/0a9ff7a8-1147-4d2d-b835-e54529b62987)
 
 
+*** 追記 ***
+conv/apply_conv.pyを追加．(2025.04.08)
+
+lenaの画像に対してNumPyを使って，ソーベルフィルタやラプシアンフィルタを適用する畳み込みフィルタを適用する．
+カーネルの値やサイズを変えて，いろんなカーネルを適用して，畳み込み演算の挙動を知ることが出来る．
+
 
 
 
