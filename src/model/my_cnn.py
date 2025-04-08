@@ -24,7 +24,7 @@ class MyCNN(nn.Module):
         x = F.relu(x)              
         x = self.max_pool(x)              
 
-        # 畳み込み1 : [bs, 32, 32, 32] -> [bs, 64, 32, 32]
+        # 畳み込み2 : [bs, 32, 16, 16] -> [bs, 64, 16, 16]
         # MaxPooling : [bs, 64, 16, 16] -> [bs, 64, 8, 8]   
         x = self.conv2(x)             
         x = F.relu(x)                 
